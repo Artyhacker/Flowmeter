@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">超声流量监测系统</string>
+    <string name="layout_login_et_username">请输入用户名</string>
+    <string name="layout_login_cb_rem_username">记住用户</string>
+    <string name="layout_login_et_password">请输入密码</string>
+    <string name="layout_login_cb_auto">自动登陆</string>
+    <string name="layout_login_btn_login">登 陆</string>
+</resources>
