@@ -47,7 +47,7 @@ public class DataDao {
         DataBean result = new DataBean();
         Cursor cursor = db.query(Contract.TABLE_NAME, null, Contract.COLUMN[0] + "=?", new String[]{id + ""}, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
-            while (cursor.moveToFirst()) {
+            while (cursor.moveToNext()) {
                 int cid = cursor.getInt(0);
                 double cvelocity = Double.parseDouble(cursor.getString(1));
                 double cquantity = Double.parseDouble(cursor.getString(2));
@@ -61,6 +61,7 @@ public class DataDao {
             }
             cursor.close();
         }
+        db.close();
         return result;
     }
 

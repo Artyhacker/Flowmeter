@@ -2,6 +2,7 @@ package com.dh.flowmeter;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,8 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,9 +43,9 @@ import okhttp3.Response;
  * Created by dh on 17-3-7.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    public static final String DATA_URL = "http://10.0.208.108:8080/Flowmeter/data";
+    public static final String DATA_URL = "http://10.0.209.161:8080/Flowmeter/data";
     public static final double THRESHOLD = 130;
 
     private ArrayList<DataBean> dataBeanArrayList;
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         dataDao = new DataDao(mContext);
         dataBeanArrayList = new ArrayList<>();
         getDataByInternet(mContext);
+
+        lv.setOnItemClickListener(this);
     }
 
     private void getDataByInternet(final Context mContext) {
@@ -118,5 +123,12 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(mContext, DetailActivity.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
     }
 }
