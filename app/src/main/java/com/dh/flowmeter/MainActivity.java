@@ -1,6 +1,7 @@
 package com.dh.flowmeter;
 
 import android.app.DownloadManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -45,7 +46,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    public static final String DATA_URL = "http://10.0.209.161:8080/Flowmeter/data";
+    public static final String DATA_URL = "http://10.42.0.1:8080/Flowmeter/data";
     public static final double THRESHOLD = 130;
 
     private ArrayList<DataBean> dataBeanArrayList;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String strDate = object.getString("date");
 
             JSONArray array = object.getJSONArray("data");
+            //ContentValues[] values = new ContentValues[array.length()];
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jo = array.getJSONObject(i);
                 DataBean bean = new DataBean();
@@ -114,9 +116,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 bean.history = jo.getString("history");
                 //bean.change = String.format("%.2f", bean.quantity - THRESHOLD);
                 dataBeanArrayList.add(bean);
+
+                /*
+                ContentValues v = new ContentValues();
+                v.put(Contract.COLUMN[0], bean.id);
+                v.put(Contract.COLUMN[1], bean.velocity);
+                v.put(Contract.COLUMN[2], bean.quantity);
+                v.put(Contract.COLUMN[3], bean.cumulant);
+                v.put(Contract.COLUMN[4], bean.history);
+                values[i] = v;*/
             }
             if (dataDao.isEmpty()){
                 dataDao.bulkInsert(dataBeanArrayList);
+                //mContext.getContentResolver().bulkInsert(Contract.URI, values);
             }
             handler.sendEmptyMessage(1);
         } catch (JSONException e) {

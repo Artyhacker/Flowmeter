@@ -20,8 +20,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             Contract.COLUMN[4] + " TEXT NOT NULL " +
             ")";
 
-    public DatabaseOpenHelper(Context context, int version) {
-        super(context, "data", null, version);
+    public DatabaseOpenHelper(Context context) {
+        super(context, "data", null, 1);
     }
 
     @Override

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class DataDao {
     DatabaseOpenHelper myOpenHelper;
     public DataDao(Context context) {
-        myOpenHelper = new DatabaseOpenHelper(context, 1);
+        myOpenHelper = new DatabaseOpenHelper(context);
     }
 
     public boolean insert(DataBean bean) {

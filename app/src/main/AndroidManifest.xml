@@ -20,6 +20,12 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".DetailActivity"
             android:parentActivityName=".MainActivity" />
+
+        <provider
+            android:authorities="com.dh.flowmeter"
+            android:name=".db.DataProvider"
+            android:exported="false"
+            />
     </application>
 
 </manifest>
