@@ -7,6 +7,11 @@ import android.net.Uri;
  */
 
 public final class Contract {
+
+    public static final String GET_DATA_URL = "http://118.89.227.173:8080/Flowmeter/data";
+    public static final double THRESHOLD = 130;
+    public static final String ACTION_DATA_UPDATED = "com.dh.flowmeter.ACTION_DATA_UPDATED";
+
     public static final String TABLE_NAME = "DATA";
     public static final String[] COLUMN = {"_id", "VELOCITY", "QUANTITY", "CUMULANT", "HISTORY"};
 

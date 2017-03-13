@@ -1,6 +1,7 @@
 package com.dh.flowmeter;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +47,6 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    public static final String DATA_URL = "http://10.42.0.1:8080/Flowmeter/data";
     public static final double THRESHOLD = 130;
 
     private ArrayList<DataBean> dataBeanArrayList;
@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @BindView(R.id.list_view)
     ListView lv;
+    @BindView(R.id.empty_view)
+    View emptyView;
 
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dataBeanArrayList = new ArrayList<>();
         getDataByInternet(mContext);
 
+        lv.setEmptyView(emptyView);
         lv.setOnItemClickListener(this);
     }
 
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         OkHttpClient mOkHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
-                .url(DATA_URL)
+                .url(Contract.GET_DATA_URL)
                 .build();
         Call call = mOkHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -129,6 +132,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (dataDao.isEmpty()){
                 dataDao.bulkInsert(dataBeanArrayList);
                 //mContext.getContentResolver().bulkInsert(Contract.URI, values);
+
+                Intent intent = new Intent(Contract.ACTION_DATA_UPDATED);
+                sendBroadcast(intent);
             }
             handler.sendEmptyMessage(1);
         } catch (JSONException e) {
@@ -143,4 +149,5 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         intent.putExtra("id", id);
         startActivity(intent);
     }
+
 }
