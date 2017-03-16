@@ -54,7 +54,13 @@ public class DataAdapter extends BaseAdapter {
 
         viewholder.tvId.setText(dataBeanList.get(position).id + "");
         viewholder.tvData.setText(dataBeanList.get(position).quantity + "");
-        viewholder.tvChange.setText(dataBeanList.get(position).getDeviation());
+        viewholder.tvChange.setText(dataBeanList.get(position).getDeviationStr());
+
+        if (dataBeanList.get(position).getDeviation() >= 0){
+            viewholder.tvChange.setBackgroundResource(R.drawable.change_pill_green);
+        } else {
+            viewholder.tvChange.setBackgroundResource(R.drawable.change_pill_red);
+        }
 
         return convertView;
     }

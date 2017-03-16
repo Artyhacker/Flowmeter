@@ -13,7 +13,11 @@ public class DataBean {
     public String cumulant;
     public String history;
 
-    public String getDeviation(){
-        return String.format("%.2f", quantity - THRESHOLD);
+    public String getDeviationStr(){
+        return String.format("%.2f", getDeviation());
+    }
+
+    public double getDeviation() {
+        return (quantity - THRESHOLD);
     }
 }

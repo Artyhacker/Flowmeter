@@ -21,6 +21,8 @@
     <TextView
         android:id="@+id/tv_change_item"
         style="@style/list_item"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         tools:text="+0.12"/>
 
 </LinearLayout>
