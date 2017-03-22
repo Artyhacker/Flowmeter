@@ -40,10 +40,12 @@ public class DetailActivity extends AppCompatActivity {
     LineChartView lineChart;
     @BindView(R.id.detail_data_des)
     TextView tvDes;
-    @BindView(R.id.detail_cumulant)
-    TextView tvCumulant;
-    @BindView(R.id.detail_velocity)
-    TextView tvVelocity;
+    @BindView(R.id.detail_minor_1)
+    TextView tvMinor1;
+    @BindView(R.id.detail_minor_2)
+    TextView tvMinor2;
+    @BindView(R.id.detail_minor_3)
+    TextView tvMinor3;
 
     List<PointValue> mPointValues;
     List<AxisValue> mAxisValues;
@@ -60,14 +62,33 @@ public class DetailActivity extends AppCompatActivity {
         dataDao = new DataDao(this);
 
         if (id != -1) {
-            drawChart(id);
+            DataBean bean = dataDao.query(id);
+            if (bean != null) {
+
+                ArrayList<DataBean.Minor> minorArrayList = bean.minorList;
+                if (minorArrayList != null) {
+                    for (int i = 0; i < minorArrayList.size(); i++) {
+                        switch (i) {
+                            case 0:
+                                DataBean.Minor minor1 = minorArrayList.get(0);
+                                tvMinor1.setText(minor1.key + ": " + minor1.value);
+                                break;
+                            case 1:
+                                DataBean.Minor minor2 = minorArrayList.get(1);
+                                tvMinor2.setText(minor2.key + ": " + minor2.value);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                drawChart(bean);
+            }
         }
     }
 
-    private void drawChart(long id) {
-        DataBean bean = dataDao.query((int) id);
-        //tvVelocity.setText("当前流速: " + bean.velocity + " m/s");
-        //tvCumulant.setText("当天净累积量: " + bean.cumulant + " m³");
+    private void drawChart(DataBean bean) {
         if (bean.history != null) {
             mAxisValues = new ArrayList<AxisValue>();
             mPointValues = new ArrayList<PointValue>();
@@ -138,7 +159,7 @@ public class DetailActivity extends AppCompatActivity {
     private class ValueTouchListener implements LineChartOnValueSelectListener {
         @Override
         public void onValueSelected(int lineIndex, int pointIndex, PointValue value) {
-            tvDes.setText("时间: " + pointIndex + " 时, 流量: " + (int) value.getY() + " m³");
+            tvDes.setText("时间: " + pointIndex + " 时, 数据: " + (int) value.getY() + " m³");
         }
 
         @Override

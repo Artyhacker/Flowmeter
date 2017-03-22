@@ -10,14 +10,14 @@
         android:padding="10dp">
 
         <TextView
-            android:id="@+id/detail_cumulant"
+            android:id="@+id/detail_minor_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             tools:text="当日净累计量：+665.80 m3"/>
 
         <TextView
-            android:id="@+id/detail_velocity"
+            android:id="@+id/detail_minor_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -40,7 +40,11 @@
         android:layout_gravity="center_horizontal"
         android:text="点击数据点查看数据详情"/>
 
-
+    <TextView
+        android:id="@+id/detail_minor_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 
 </LinearLayout>
