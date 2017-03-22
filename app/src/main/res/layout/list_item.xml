@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="10dp"
+    android:paddingTop="20dp"
     android:paddingBottom="10dp">
 
     <TextView
@@ -16,13 +16,16 @@
     <TextView
         android:id="@+id/tv_data_item"
         style="@style/list_item"
-        tools:text="3.14"/>
+        android:layout_weight="2"
+        tools:text="3.14 m/s"/>
 
     <TextView
         android:id="@+id/tv_change_item"
         style="@style/list_item"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        tools:text="+0.12"/>
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="正常"/>
 
 </LinearLayout>

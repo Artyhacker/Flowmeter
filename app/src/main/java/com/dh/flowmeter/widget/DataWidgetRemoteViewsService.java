@@ -62,14 +62,14 @@ public class DataWidgetRemoteViewsService extends RemoteViewsService {
                 }
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.widget_data_item);
 
-                long id = data.getLong(0);
-                String velocity = data.getString(1);
-                double quantity = data.getDouble(2);
-                String cumulant = data.getString(3);
+                int id = data.getInt(Contract.COLUMN_INDEX_ID);
+                double mdata = data.getDouble(Contract.COLUMN_INDEX_DATA);
+                String unit = data.getString(Contract.COLUMN_INDEX_UNIT);
+                String status = (mdata > Contract.THRESHOLD) ? "正常" : "异常";
 
                 views.setTextViewText(R.id.widget_item_id, id + "");
-                views.setTextViewText(R.id.widget_item_quantity, quantity + "");
-                views.setTextViewText(R.id.widget_item_change, String.format("%.2f", quantity - Contract.THRESHOLD));
+                views.setTextViewText(R.id.widget_item_quantity, mdata + " " + unit);
+                views.setTextViewText(R.id.widget_item_change, status);
 
                 final Intent fillInIntent = new Intent(getApplicationContext(), DetailActivity.class);
                 fillInIntent.putExtra("id", id);

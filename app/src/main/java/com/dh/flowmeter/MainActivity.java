@@ -2,10 +2,14 @@ package com.dh.flowmeter;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,10 +24,12 @@ import android.widget.Toast;
 
 import com.dh.flowmeter.db.DataDao;
 import com.dh.flowmeter.db.DatabaseOpenHelper;
+import com.dh.flowmeter.sync.DataSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -52,11 +58,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ArrayList<DataBean> dataBeanArrayList;
     private Context mContext;
     private DataDao dataDao;
+    private ContentResolver resolver;
 
     @BindView(R.id.list_view)
     ListView lv;
     @BindView(R.id.empty_view)
-    View emptyView;
+    TextView emptyView;
 
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -73,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mContext = this;
+        resolver = getContentResolver();
+
+        //DataUpdateBroadcast broadcast = new DataUpdateBroadcast();
 
         dataDao = new DataDao(mContext);
         dataBeanArrayList = new ArrayList<>();
@@ -80,7 +90,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         lv.setEmptyView(emptyView);
         lv.setOnItemClickListener(this);
+
+        //DataSyncAdapter.initializeSyncAdapter(mContext);
     }
+
 
     private void getDataByInternet(final Context mContext) {
 
@@ -104,31 +117,41 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void parseJSON(String responseStr) {
         try {
-            JSONObject object = new JSONObject(responseStr);
-            String strDate = object.getString("date");
+            JSONArray jsonArray = new JSONArray(responseStr);
 
-            JSONArray array = object.getJSONArray("data");
-            //ContentValues[] values = new ContentValues[array.length()];
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject jo = array.getJSONObject(i);
-                DataBean bean = new DataBean();
-                bean.id = jo.getInt("id");
-                bean.velocity = jo.getDouble("velocity");
-                bean.quantity = jo.getDouble("quantity");
-                bean.cumulant = jo.getString("cumulant");
-                bean.history = jo.getString("history");
-                //bean.change = String.format("%.2f", bean.quantity - THRESHOLD);
-                dataBeanArrayList.add(bean);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject bean = jsonArray.getJSONObject(i);
 
-                /*
-                ContentValues v = new ContentValues();
-                v.put(Contract.COLUMN[0], bean.id);
-                v.put(Contract.COLUMN[1], bean.velocity);
-                v.put(Contract.COLUMN[2], bean.quantity);
-                v.put(Contract.COLUMN[3], bean.cumulant);
-                v.put(Contract.COLUMN[4], bean.history);
-                values[i] = v;*/
+                int jsonID = bean.getInt(Contract.JSON_ID);
+                String jsonName = bean.getString(Contract.JSON_NAME);
+                String jsonDate = bean.getString(Contract.JSON_DATE);
+                double jsonData = bean.getDouble(Contract.JSON_DATA);
+                String jsonUnit = bean.getString(Contract.JSON_UNIT);
+                String jsonHistory = bean.getString(Contract.JSON_HISTORY);
+
+                ArrayList<DataBean.Minor> minorList = new ArrayList<>();
+                //Log.e("MainActivity", "name: " + jsonName + ", date: " + jsonDate + ", data: " + jsonData + ", unit: " + jsonUnit);
+                JSONArray jsonMinors = bean.getJSONArray(Contract.JSON_MINOR);
+                for (int j = 0; j < jsonMinors.length(); j++) {
+                    JSONObject jsonMinor = jsonMinors.getJSONObject(j);
+                    String jsonKey = jsonMinor.getString(Contract.JSON_MINOR_KEY);
+                    String jsonValue = jsonMinor.getString(Contract.JSON_MINOR_VALUE);
+                    DataBean.Minor minor = new DataBean.Minor(jsonKey, jsonValue);
+                    minorList.add(minor);
+                }
+
+                DataBean dataBean = new DataBean();
+                dataBean.id = jsonID;
+                dataBean.name = jsonName;
+                dataBean.date = jsonDate;
+                dataBean.data = jsonData;
+                dataBean.unit = jsonUnit;
+                dataBean.history = jsonHistory;
+                dataBean.minorList = minorList;
+
+                dataBeanArrayList.add(dataBean);
             }
+
             if (dataDao.isEmpty()){
                 dataDao.bulkInsert(dataBeanArrayList);
                 //mContext.getContentResolver().bulkInsert(Contract.URI, values);
@@ -149,5 +172,47 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         intent.putExtra("id", id);
         startActivity(intent);
     }
+
+    private class DataUpdateBroadcast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Contract.ACTION_DATA_UPDATED.equals(intent.getAction())) {
+                //getDataFromDB();
+            }
+        }
+    }
+
+    /**
+     * public int id;
+     public double velocity;
+     public double quantity;
+     public String cumulant;
+     public String history;
+     */
+    /*
+    private void getDataFromDB() {
+        dataBeanArrayList = new ArrayList<>();
+        Cursor cursor = resolver.query(Contract.URI, null, null, null, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int cid = cursor.getInt(0);
+                double cvelocity = cursor.getDouble(1);
+                double cquantity = cursor.getDouble(2);
+                String ccumulant = cursor.getString(3);
+                String chistory = cursor.getString(4);
+
+                DataBean bean = new DataBean();
+                bean.id = cid;
+                bean.velocity = cvelocity;
+                bean.history = chistory;
+                bean.cumulant = ccumulant;
+                bean.quantity = cquantity;
+
+                dataBeanArrayList.add(bean);
+            }
+            cursor.close();
+            handler.sendEmptyMessage(1);
+        }
+    }*/
 
 }

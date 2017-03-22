@@ -16,11 +16,12 @@
     <TextView
         android:id="@+id/widget_item_quantity"
         style="@style/widget_list_item"
+        android:layout_weight="2"
         tools:text="3.14"/>
 
     <TextView
         android:id="@+id/widget_item_change"
         style="@style/widget_list_item"
-        tools:text="+0.12"/>
+        tools:text="正常"/>
 
 </LinearLayout>

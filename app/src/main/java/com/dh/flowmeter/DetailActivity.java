@@ -56,7 +56,7 @@ public class DetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
-        long id = intent.getLongExtra("id", -1);
+        int id = intent.getIntExtra("id", -1);
         dataDao = new DataDao(this);
 
         if (id != -1) {
@@ -66,8 +66,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private void drawChart(long id) {
         DataBean bean = dataDao.query((int) id);
-        tvVelocity.setText("当前流速: " + bean.velocity + " m/s");
-        tvCumulant.setText("当天净累积量: " + bean.cumulant + " m³");
+        //tvVelocity.setText("当前流速: " + bean.velocity + " m/s");
+        //tvCumulant.setText("当天净累积量: " + bean.cumulant + " m³");
         if (bean.history != null) {
             mAxisValues = new ArrayList<AxisValue>();
             mPointValues = new ArrayList<PointValue>();

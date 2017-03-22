@@ -13,11 +13,13 @@ import com.dh.flowmeter.Contract;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private String sql = "CREATE TABLE " + Contract.TABLE_NAME + "(" +
-            Contract.COLUMN[0] + " INTEGER PRIMARY KEY NOT NULL," +
-            Contract.COLUMN[1] + " TEXT NOT NULL, " +
-            Contract.COLUMN[2] + " TEXT NOT NULL, " +
-            Contract.COLUMN[3] + " TEXT NOT NULL, " +
-            Contract.COLUMN[4] + " TEXT NOT NULL " +
+            Contract.COLUMN_ID + " INTEGER PRIMARY KEY NOT NULL," +
+            Contract.COLUMN_NAME + " TEXT NOT NULL, " +
+            Contract.COLUMN_DATE + " TEXT NOT NULL, " +
+            Contract.COLUMN_DATA + " TEXT NOT NULL, " +
+            Contract.COLUMN_UNIT + " TEXT NOT NULL, " +
+            Contract.COLUMN_MINOR + " TEXT NOT NULL, " +
+            Contract.COLUMN_HISTORY + " TEXT NOT NULL " +
             ")";
 
     public DatabaseOpenHelper(Context context) {
