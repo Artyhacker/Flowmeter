@@ -10,6 +10,7 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.dh.flowmeter.Contract;
+import com.dh.flowmeter.DataBean;
 import com.dh.flowmeter.DetailActivity;
 import com.dh.flowmeter.R;
 
@@ -62,18 +63,19 @@ public class DataWidgetRemoteViewsService extends RemoteViewsService {
                 }
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.widget_data_item);
 
-                int id = data.getInt(Contract.COLUMN_INDEX_ID);
-                double mdata = data.getDouble(Contract.COLUMN_INDEX_DATA);
-                String unit = data.getString(Contract.COLUMN_INDEX_UNIT);
-                String status = (mdata > Contract.THRESHOLD) ? "正常" : "异常";
+                DataBean bean = new DataBean();
+                bean.id = data.getInt(Contract.COLUMN_INDEX_ID);
+                bean.data = data.getDouble(Contract.COLUMN_INDEX_DATA);
+                bean.unit = data.getString(Contract.COLUMN_INDEX_UNIT);
+                String status = bean.getStatus(getApplicationContext());
 
-                views.setTextViewText(R.id.widget_item_id, id + "");
-                views.setTextViewText(R.id.widget_item_quantity, mdata + " " + unit);
+                views.setTextViewText(R.id.widget_item_id, bean.id + "");
+                views.setTextViewText(R.id.widget_item_quantity, bean.data + " " + bean.unit);
                 views.setTextViewText(R.id.widget_item_change, status);
 
                 final Intent fillInIntent = new Intent(getApplicationContext(), DetailActivity.class);
-                fillInIntent.putExtra("id", id);
-                Log.d("WidgetService", "id: " + id);
+                fillInIntent.putExtra("id", bean.id);
+                Log.d("WidgetService", "id: " + bean.id);
                 views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
 
                 return views;

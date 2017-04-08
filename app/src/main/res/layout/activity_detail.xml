@@ -14,14 +14,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            tools:text="当日净累计量：+665.80 m3"/>
+            tools:text="cumulant：+665.80 m3"/>
 
         <TextView
             android:id="@+id/detail_minor_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            tools:text="当前流速： 0.46 m/s"/>
+            tools:text="velocity： 0.46 m/s"/>
     </RelativeLayout>
 
     <lecho.lib.hellocharts.view.LineChartView
@@ -38,13 +38,24 @@
         android:textColor="@color/colorPrimary"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:text="点击数据点查看数据详情"/>
+        android:text="点击数据点查看数据详情"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/detail_minor_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/detail_threshold_btn"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="点击设定阈值"
+        android:textSize="22sp"/>
 
 
 </LinearLayout>

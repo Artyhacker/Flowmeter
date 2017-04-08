@@ -1,6 +1,9 @@
 package com.dh.flowmeter;
 
 import android.app.DownloadManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -15,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -82,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mContext = this;
         resolver = getContentResolver();
 
-        //DataUpdateBroadcast broadcast = new DataUpdateBroadcast();
+        DataUpdateBroadcast broadcast = new DataUpdateBroadcast();
 
         dataDao = new DataDao(mContext);
         dataBeanArrayList = new ArrayList<>();
@@ -91,9 +95,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         lv.setEmptyView(emptyView);
         lv.setOnItemClickListener(this);
 
-        //DataSyncAdapter.initializeSyncAdapter(mContext);
+        DataSyncAdapter.initializeSyncAdapter(mContext);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.sendEmptyMessage(0);
+    }
 
     private void getDataByInternet(final Context mContext) {
 
@@ -150,6 +159,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 dataBean.minorList = minorList;
 
                 dataBeanArrayList.add(dataBean);
+
+                if (dataBean.getStatus(mContext).equals("异常")) {
+                    NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(mContext)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("监测到异常！")
+                            .setContentText(dataBean.name + " " + dataBean.id + " 出现异常！");
+                    Intent resultIntent = new Intent(this, DetailActivity.class);
+                    resultIntent.putExtra("id", dataBean.id);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+                    stackBuilder.addParentStack(DetailActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
+                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.notify(dataBean.id, mBuilder.build());
+                }
             }
 
             if (dataDao.isEmpty()){
@@ -177,42 +202,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Contract.ACTION_DATA_UPDATED.equals(intent.getAction())) {
-                //getDataFromDB();
+                getDataFromDB();
             }
         }
     }
 
-    /**
-     * public int id;
-     public double velocity;
-     public double quantity;
-     public String cumulant;
-     public String history;
-     */
-    /*
+
+
     private void getDataFromDB() {
         dataBeanArrayList = new ArrayList<>();
         Cursor cursor = resolver.query(Contract.URI, null, null, null, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                int cid = cursor.getInt(0);
-                double cvelocity = cursor.getDouble(1);
-                double cquantity = cursor.getDouble(2);
-                String ccumulant = cursor.getString(3);
-                String chistory = cursor.getString(4);
+                int cid = cursor.getInt(Contract.COLUMN_INDEX_ID);
+                String cname = cursor.getString(Contract.COLUMN_INDEX_NAME);
+                String cdate = cursor.getString(Contract.COLUMN_INDEX_DATE);
+                double cdata = cursor.getDouble(Contract.COLUMN_INDEX_DATA);
+                String cunit = cursor.getString(Contract.COLUMN_INDEX_UNIT);
+                String cminor = cursor.getString(Contract.COLUMN_INDEX_MINOR);
+                String chistory = cursor.getString(Contract.COLUMN_INDEX_HISTORY);
 
                 DataBean bean = new DataBean();
                 bean.id = cid;
-                bean.velocity = cvelocity;
+                bean.name = cname;
+                bean.date = cdate;
+                bean.data = cdata;
+                bean.unit = cunit;
+                bean.minorList = bean.getMinorList(cminor);
                 bean.history = chistory;
-                bean.cumulant = ccumulant;
-                bean.quantity = cquantity;
 
                 dataBeanArrayList.add(bean);
             }
             cursor.close();
             handler.sendEmptyMessage(1);
         }
-    }*/
+    }
 
 }

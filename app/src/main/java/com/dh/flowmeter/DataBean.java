@@ -1,5 +1,8 @@
 package com.dh.flowmeter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.util.ArrayList;
 
 import static com.dh.flowmeter.MainActivity.THRESHOLD;
@@ -10,9 +13,6 @@ import static com.dh.flowmeter.MainActivity.THRESHOLD;
 
 public class DataBean {
     public int id;
-    //public double velocity;
-    //public double quantity;
-    //public String cumulant;
     public String history;
     public String name;
     public String date;
@@ -21,8 +21,25 @@ public class DataBean {
 
     public ArrayList<Minor> minorList;
 
-    public String getStatus() {
-        return (data > Contract.THRESHOLD) ? "正常" : "异常";
+    private float[] getThreshold(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(context.getString(R.string.threshold_sp_name), Context.MODE_PRIVATE);
+        float[] result = new float[2];
+        result[0] = sp.getFloat(id + "low", -1);
+        result[1] = sp.getFloat(id + "high", -1);
+        return result;
+    }
+
+    public String getStatus(Context context) {
+
+        float[] threshold = getThreshold(context);
+        if (threshold[0] == -1 && threshold[1] == -1)
+            return "正常";
+        else if (threshold[0] == -1)
+            return (data <= threshold[1]) ? "正常" : "异常";
+        else if (threshold[1] == -1)
+            return (data >= threshold[0]) ? "正常" : "异常";
+        else
+            return (data >= threshold[0] && data <= threshold[1]) ? "正常" : "异常";
     }
 
     public static class Minor {

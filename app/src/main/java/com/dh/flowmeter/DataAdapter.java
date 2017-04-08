@@ -54,9 +54,9 @@ public class DataAdapter extends BaseAdapter {
 
         viewholder.tvId.setText(dataBeanList.get(position).id + "");
         viewholder.tvData.setText(dataBeanList.get(position).data + " " + dataBeanList.get(position).unit);
-        viewholder.tvChange.setText(dataBeanList.get(position).getStatus());
+        viewholder.tvChange.setText(dataBeanList.get(position).getStatus(context));
 
-        if (dataBeanList.get(position).getStatus().equals("正常")){
+        if (dataBeanList.get(position).getStatus(context).equals("正常")){
             viewholder.tvChange.setBackgroundResource(R.drawable.change_pill_green);
         } else {
             viewholder.tvChange.setBackgroundResource(R.drawable.change_pill_red);

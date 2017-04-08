@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -40,6 +41,7 @@ public class DataSyncAdapter extends AbstractThreadedSyncAdapter {
     private ContentResolver resolver;
     private Context context;
     private DataDao dataDao;
+    private ArrayList<DataBean> dataBeanArrayList;
 
     public DataSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -51,10 +53,10 @@ public class DataSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         resolver = getContext().getContentResolver();
-        //getDataByInternet(context);
+        dataBeanArrayList = new ArrayList<>();
+        getDataByInternet(context);
     }
 
-    /*
     private void getDataByInternet(final Context mContext) {
 
         OkHttpClient mOkHttpClient = new OkHttpClient();
@@ -77,31 +79,44 @@ public class DataSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void parseJSON(String responseStr) {
         try {
-            JSONObject object = new JSONObject(responseStr);
-            String strDate = object.getString("date");
+            JSONArray jsonArray = new JSONArray(responseStr);
 
-            JSONArray array = object.getJSONArray("data");
-            ContentValues[] values = new ContentValues[array.length()];
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject jo = array.getJSONObject(i);
-                DataBean bean = new DataBean();
-                bean.id = jo.getInt("id");
-                bean.velocity = jo.getDouble("velocity");
-                bean.quantity = jo.getDouble("quantity");
-                bean.cumulant = jo.getString("cumulant");
-                bean.history = jo.getString("history");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject bean = jsonArray.getJSONObject(i);
 
-                ContentValues v = new ContentValues();
-                v.put(Contract.COLUMN[0], bean.id);
-                v.put(Contract.COLUMN[1], bean.velocity);
-                v.put(Contract.COLUMN[2], bean.quantity);
-                v.put(Contract.COLUMN[3], bean.cumulant);
-                v.put(Contract.COLUMN[4], bean.history);
-                values[i] = v;
+                int jsonID = bean.getInt(Contract.JSON_ID);
+                String jsonName = bean.getString(Contract.JSON_NAME);
+                String jsonDate = bean.getString(Contract.JSON_DATE);
+                double jsonData = bean.getDouble(Contract.JSON_DATA);
+                String jsonUnit = bean.getString(Contract.JSON_UNIT);
+                String jsonHistory = bean.getString(Contract.JSON_HISTORY);
+
+                ArrayList<DataBean.Minor> minorList = new ArrayList<>();
+                //Log.e("MainActivity", "name: " + jsonName + ", date: " + jsonDate + ", data: " + jsonData + ", unit: " + jsonUnit);
+                JSONArray jsonMinors = bean.getJSONArray(Contract.JSON_MINOR);
+                for (int j = 0; j < jsonMinors.length(); j++) {
+                    JSONObject jsonMinor = jsonMinors.getJSONObject(j);
+                    String jsonKey = jsonMinor.getString(Contract.JSON_MINOR_KEY);
+                    String jsonValue = jsonMinor.getString(Contract.JSON_MINOR_VALUE);
+                    DataBean.Minor minor = new DataBean.Minor(jsonKey, jsonValue);
+                    minorList.add(minor);
+                }
+
+                DataBean dataBean = new DataBean();
+                dataBean.id = jsonID;
+                dataBean.name = jsonName;
+                dataBean.date = jsonDate;
+                dataBean.data = jsonData;
+                dataBean.unit = jsonUnit;
+                dataBean.history = jsonHistory;
+                dataBean.minorList = minorList;
+
+                dataBeanArrayList.add(dataBean);
             }
+
             if (dataDao.isEmpty()){
-                //dataDao.bulkInsert(dataBeanArrayList);
-                resolver.bulkInsert(Contract.URI, values);
+                dataDao.bulkInsert(dataBeanArrayList);
+                //mContext.getContentResolver().bulkInsert(Contract.URI, values);
 
                 Intent intent = new Intent(Contract.ACTION_DATA_UPDATED);
                 context.sendBroadcast(intent);
@@ -110,7 +125,7 @@ public class DataSyncAdapter extends AbstractThreadedSyncAdapter {
             e.printStackTrace();
         }
 
-    }*/
+    }
 
     @Override
     public void onSyncCanceled() {
